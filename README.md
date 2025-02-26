@@ -43,10 +43,10 @@ Cucumber feature files and step definitions for end-to-end testing.
 ### Clone the Repository
 
 Using SSH:  
-`git clone git@github.com:<your-username>/fs_todo.git`  
+`git clone git@github.com:csmathguy/fs_todo.git`  
 
 Or using HTTPS:  
-`git clone https://github.com/<your-username>/fs_todo.git`
+`git clone https://github.com/csmathguy/fs_todo.git`
 
 ### Install Dependencies
 
