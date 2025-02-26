@@ -1,0 +1,16 @@
+# Node modules
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build output
+client/build/
+
+# Logs
+*.log
+
+# IDE settings (optional)
+.vscode/
+
+# Puppeteer cache
+.cache/
