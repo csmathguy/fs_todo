@@ -11,9 +11,13 @@ import {
   ThemeProvider, 
   createTheme,
   CssBaseline,
-  styled
+  styled,
+  Button,
+  TextField,
+  IconButton,
+  Pagination
 } from '@mui/material';
-import { RadioButtonUnchecked } from '@mui/icons-material';
+import { RadioButtonUnchecked, Edit, Delete } from '@mui/icons-material';
 
 // Define a custom theme
 const theme = createTheme({
@@ -83,13 +87,62 @@ interface Todo {
 
 const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [newTodo, setNewTodo] = useState('');
+  const [editTodo, setEditTodo] = useState<Todo | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/todos')
+    fetchTodos(page);
+  }, [page]);
+
+  const fetchTodos = (page: number) => {
+    fetch(`http://localhost:3001/api/todos?page=${page}&limit=10`)
       .then((res) => res.json())
-      .then((data: Todo[]) => setTodos(data))
+      .then((data) => {
+        setTodos(data.todos || []);
+        setTotalPages(Math.ceil(data.total / data.limit) || 1);
+      })
       .catch((err) => console.error('Error fetching todos:', err));
-  }, []);
+  };
+
+  const handleCreateTodo = () => {
+    fetch('http://localhost:3001/api/todos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: newTodo }),
+    })
+      .then((res) => res.json())
+      .then((todo) => {
+        setTodos([...todos, todo]);
+        setNewTodo('');
+      })
+      .catch((err) => console.error('Error creating todo:', err));
+  };
+
+  const handleUpdateTodo = (id: number, title: string) => {
+    fetch(`http://localhost:3001/api/todos/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title }),
+    })
+      .then((res) => res.json())
+      .then((updatedTodo) => {
+        setTodos(todos.map((todo) => (todo.id === id ? updatedTodo : todo)));
+        setEditTodo(null);
+      })
+      .catch((err) => console.error('Error updating todo:', err));
+  };
+
+  const handleDeleteTodo = (id: number) => {
+    fetch(`http://localhost:3001/api/todos/${id}`, {
+      method: 'DELETE',
+    })
+      .then(() => {
+        setTodos(todos.filter((todo) => todo.id !== id));
+      })
+      .catch((err) => console.error('Error deleting todo:', err));
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -105,6 +158,24 @@ const App: React.FC = () => {
             </Typography>
           </HeaderBox>
 
+          <Box display="flex" mb={2}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="New Todo"
+              value={newTodo}
+              onChange={(e) => setNewTodo(e.target.value)}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleCreateTodo}
+              disabled={!newTodo.trim()}
+            >
+              Add
+            </Button>
+          </Box>
+
           <TodoList>
             {todos.length === 0 ? (
               <EmptyListBox>
@@ -117,18 +188,55 @@ const App: React.FC = () => {
                 <React.Fragment key={todo.id}>
                   <TodoItem alignItems="center">
                     <TodoIcon />
-                    <ListItemText 
-                      primary={todo.title} 
+                    <ListItemText
+                      primary={
+                        editTodo && editTodo.id === todo.id ? (
+                          <TextField
+                            fullWidth
+                            variant="outlined"
+                            value={editTodo.title}
+                            onChange={(e) =>
+                              setEditTodo({ ...editTodo, title: e.target.value })
+                            }
+                            onBlur={() =>
+                              handleUpdateTodo(editTodo.id, editTodo.title)
+                            }
+                          />
+                        ) : (
+                          todo.title
+                        )
+                      }
                       primaryTypographyProps={{
                         fontWeight: 500,
                       }}
                     />
+                    <IconButton
+                      edge="end"
+                      onClick={() => setEditTodo(todo)}
+                    >
+                      <Edit />
+                    </IconButton>
+                    <IconButton
+                      edge="end"
+                      onClick={() => handleDeleteTodo(todo.id)}
+                    >
+                      <Delete />
+                    </IconButton>
                   </TodoItem>
                   {index < todos.length - 1 && <Divider component="li" />}
                 </React.Fragment>
               ))
             )}
           </TodoList>
+
+          <Box display="flex" justifyContent="center" mt={2}>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={(e, value) => setPage(value)}
+              color="primary"
+            />
+          </Box>
         </TodoPaper>
       </TodoContainer>
     </ThemeProvider>
