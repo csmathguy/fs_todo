@@ -157,6 +157,8 @@ const App: React.FC = () => {
         setTotalPages(newTotalPages);
         if (updatedTodos.length === 0 && page > 1) {
           setPage(page - 1);
+        } else {
+          fetchTodos(page);
         }
       })
       .catch((err) => console.error('Error deleting todo:', err));
