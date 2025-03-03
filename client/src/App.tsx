@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { 
   Container, 
   Typography, 
@@ -17,7 +17,7 @@ import {
   IconButton,
   Pagination
 } from '@mui/material';
-import { RadioButtonUnchecked, Edit, Delete } from '@mui/icons-material';
+import { RadioButtonUnchecked, Edit, Delete, Check } from '@mui/icons-material';
 
 // Define a custom theme
 const theme = createTheme({
@@ -92,10 +92,20 @@ const App: React.FC = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalTodos, setTotalTodos] = useState(0);
+  const editFieldRef = useRef<HTMLInputElement>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     fetchTodos(page);
   }, [page]);
+
+  useEffect(() => {
+    if (editTodo && editFieldRef.current && !isEditing) {
+      editFieldRef.current.focus();
+      editFieldRef.current.select();
+      setIsEditing(true);
+    }
+  }, [editTodo, isEditing]);
 
   const fetchTodos = (page: number) => {
     fetch(`http://localhost:3001/api/todos?page=${page}&limit=10`)
@@ -140,6 +150,7 @@ const App: React.FC = () => {
       .then((updatedTodo) => {
         setTodos(todos.map((todo) => (todo.id === id ? updatedTodo : todo)));
         setEditTodo(null);
+        setIsEditing(false);
       })
       .catch((err) => console.error('Error updating todo:', err));
   };
@@ -162,6 +173,21 @@ const App: React.FC = () => {
         }
       })
       .catch((err) => console.error('Error deleting todo:', err));
+  };
+
+  const handleEditClick = (todo: Todo) => {
+    if (editTodo && editTodo.id === todo.id) {
+      handleUpdateTodo(editTodo.id, editTodo.title);
+    } else {
+      setEditTodo(todo);
+      setIsEditing(false);
+    }
+  };
+
+  const handleKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' && editTodo) {
+      handleUpdateTodo(editTodo.id, editTodo.title);
+    }
   };
 
   return (
@@ -221,6 +247,8 @@ const App: React.FC = () => {
                             onBlur={() =>
                               handleUpdateTodo(editTodo.id, editTodo.title)
                             }
+                            onKeyPress={handleKeyPress}
+                            inputRef={editFieldRef}
                           />
                         ) : (
                           todo.title
@@ -232,9 +260,9 @@ const App: React.FC = () => {
                     />
                     <IconButton
                       edge="end"
-                      onClick={() => setEditTodo(todo)}
+                      onClick={() => handleEditClick(todo)}
                     >
-                      <Edit />
+                      {editTodo && editTodo.id === todo.id ? <Check /> : <Edit />}
                     </IconButton>
                     <IconButton
                       edge="end"
