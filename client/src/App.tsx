@@ -91,6 +91,7 @@ const App: React.FC = () => {
   const [editTodo, setEditTodo] = useState<Todo | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalTodos, setTotalTodos] = useState(0);
 
   useEffect(() => {
     fetchTodos(page);
@@ -102,6 +103,7 @@ const App: React.FC = () => {
       .then((data) => {
         setTodos(data.todos || []);
         setTotalPages(Math.ceil(data.total / data.limit) || 1);
+        setTotalTodos(data.total);
       })
       .catch((err) => console.error('Error fetching todos:', err));
   };
@@ -114,8 +116,16 @@ const App: React.FC = () => {
     })
       .then((res) => res.json())
       .then((todo) => {
-        setTodos([...todos, todo]);
+        const updatedTodos = [...todos, todo];
+        setTodos(updatedTodos);
         setNewTodo('');
+        const newTotalTodos = totalTodos + 1;
+        setTotalTodos(newTotalTodos);
+        const newTotalPages = Math.ceil(newTotalTodos / 10);
+        setTotalPages(newTotalPages);
+        if (updatedTodos.length > 10) {
+          setPage(newTotalPages);
+        }
       })
       .catch((err) => console.error('Error creating todo:', err));
   };
@@ -139,7 +149,15 @@ const App: React.FC = () => {
       method: 'DELETE',
     })
       .then(() => {
-        setTodos(todos.filter((todo) => todo.id !== id));
+        const updatedTodos = todos.filter((todo) => todo.id !== id);
+        setTodos(updatedTodos);
+        const newTotalTodos = totalTodos - 1;
+        setTotalTodos(newTotalTodos);
+        const newTotalPages = Math.ceil(newTotalTodos / 10);
+        setTotalPages(newTotalPages);
+        if (updatedTodos.length === 0 && page > 1) {
+          setPage(page - 1);
+        }
       })
       .catch((err) => console.error('Error deleting todo:', err));
   };
