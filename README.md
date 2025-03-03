@@ -9,11 +9,13 @@ A simple TO DO application built with:
 ## Table of Contents
 
 1. [Project Structure](#project-structure)  
-2. [Prerequisites](#prerequisites)  
-3. [Installation](#installation)  
-4. [Running the Application](#running-the-application)  
-5. [Running Tests](#running-tests)  
-6. [Notes](#notes)
+2. [Development Principles](#development-principles)
+3. [Code Style Guidelines](#code-style-guidelines)
+4. [Prerequisites](#prerequisites)  
+5. [Installation](#installation)  
+6. [Running the Application](#running-the-application)  
+7. [Running Tests](#running-tests)  
+8. [Notes](#notes)
 
 ---
 
@@ -27,6 +29,46 @@ Express + TypeScript backend.
 
 ### features/
 Cucumber feature files and step definitions for end-to-end testing.
+
+---
+
+## Development Principles
+
+### SOLID Principles
+We follow SOLID principles in our codebase:
+- **S**ingle Responsibility Principle: Each class/module has only one reason to change
+- **O**pen/Closed Principle: Software entities are open for extension but closed for modification
+- **L**iskov Substitution Principle: Derived classes are substitutable for their base classes
+- **I**nterface Segregation Principle: Clients are not forced to depend on methods they do not use
+- **D**ependency Inversion Principle: We depend on abstractions, not on concretions
+
+### Test-Driven Development
+We use a TDD approach throughout development:
+1. Write a failing test first
+2. Write minimal code to make the test pass
+3. Refactor while keeping tests passing
+
+## Code Style Guidelines
+
+- Use TypeScript for type safety
+- Prefer functional programming approaches where appropriate
+- Use async/await for asynchronous operations
+- Write descriptive variable and function names
+- Include JSDoc comments for all functions and classes
+- Keep functions small and focused on a single task
+- Separate concerns between client and server
+
+### Project-Specific Guidelines
+- For the client, use React best practices and hooks
+- For the server, follow RESTful API design principles
+- Use Cucumber for feature specifications
+- Ensure cross-compatibility between client and server types
+
+### Testing Expectations
+- Every feature should have corresponding Cucumber tests
+- Every component should have unit tests
+- Mock external dependencies in tests
+- Test both happy path and error scenarios
 
 ---
 
@@ -102,7 +144,7 @@ This triggers **Cucumber.js**, which uses **Puppeteer** to:
 
 #### Common Issues
 - **CORS Error**: If you see a CORS issue, ensure the `cors` middleware is enabled in `server/src/index.ts`.  
-- **Puppeteer Launch Error**: If Puppeteer can’t find Chromium, you may need to specify `executablePath` or reinstall Puppeteer.
+- **Puppeteer Launch Error**: If Puppeteer can't find Chromium, you may need to specify `executablePath` or reinstall Puppeteer.
 
 ---
 
@@ -113,3 +155,4 @@ This triggers **Cucumber.js**, which uses **Puppeteer** to:
 1. Run `npm run build` in the `client` folder.  
 2. Serve the `client/build` folder from the Express server (already configured in `server/src/index.ts`).  
 3. Access the app at `http://localhost:3001`.
+- **Feature Development**: Before developing a new feature, check the existing features in the `/features` folder to avoid conflicts with existing functionality.
