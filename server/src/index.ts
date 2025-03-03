@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -14,10 +15,9 @@ app.use(express.json());
 
 // Simple in-memory "database" of to-do items.
 let todos = [
-  { id: 1, title: 'Buy groceries' },
-  { id: 2, title: 'Complete project' },
+  { id: uuidv4(), title: 'Buy groceries' },
+  { id: uuidv4(), title: 'Complete project' },
 ];
-let nextId = 3; // Counter for generating unique IDs
 
 // API endpoint to get the list of to-dos with pagination.
 app.get('/api/todos', (req, res) => {
@@ -32,7 +32,7 @@ app.get('/api/todos', (req, res) => {
 // API endpoint to create a new to-do.
 app.post('/api/todos', (req, res) => {
   const { title } = req.body;
-  const newTodo = { id: nextId++, title };
+  const newTodo = { id: uuidv4(), title };
   todos.push(newTodo);
   res.status(201).json(newTodo);
 });
@@ -41,7 +41,7 @@ app.post('/api/todos', (req, res) => {
 app.put('/api/todos/:id', (req, res) => {
   const { id } = req.params;
   const { title } = req.body;
-  const todo = todos.find(t => t.id === parseInt(id));
+  const todo = todos.find(t => t.id === id);
   if (todo) {
     todo.title = title;
     res.json(todo);
@@ -53,7 +53,7 @@ app.put('/api/todos/:id', (req, res) => {
 // API endpoint to delete a to-do.
 app.delete('/api/todos/:id', (req, res) => {
   const { id } = req.params;
-  todos = todos.filter(t => t.id !== parseInt(id));
+  todos = todos.filter(t => t.id !== id);
   res.status(204).end();
 });
 

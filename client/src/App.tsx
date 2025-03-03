@@ -81,7 +81,7 @@ const EmptyListBox = styled(Box)(({ theme }) => ({
 }));
 
 interface Todo {
-  id: number;
+  id: string;
   title: string;
 }
 
@@ -120,7 +120,7 @@ const App: React.FC = () => {
       .catch((err) => console.error('Error creating todo:', err));
   };
 
-  const handleUpdateTodo = (id: number, title: string) => {
+  const handleUpdateTodo = (id: string, title: string) => {
     fetch(`http://localhost:3001/api/todos/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -134,7 +134,7 @@ const App: React.FC = () => {
       .catch((err) => console.error('Error updating todo:', err));
   };
 
-  const handleDeleteTodo = (id: number) => {
+  const handleDeleteTodo = (id: string) => {
     fetch(`http://localhost:3001/api/todos/${id}`, {
       method: 'DELETE',
     })
