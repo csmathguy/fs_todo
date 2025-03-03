@@ -17,6 +17,7 @@ let todos = [
   { id: 1, title: 'Buy groceries' },
   { id: 2, title: 'Complete project' },
 ];
+let nextId = 3; // Counter for generating unique IDs
 
 // API endpoint to get the list of to-dos with pagination.
 app.get('/api/todos', (req, res) => {
@@ -31,7 +32,7 @@ app.get('/api/todos', (req, res) => {
 // API endpoint to create a new to-do.
 app.post('/api/todos', (req, res) => {
   const { title } = req.body;
-  const newTodo = { id: todos.length + 1, title };
+  const newTodo = { id: nextId++, title };
   todos.push(newTodo);
   res.status(201).json(newTodo);
 });
